@@ -1,0 +1,41 @@
+names:
+- apple
+- banana
+- beef
+- blueberries
+- bread
+- butter
+- carrot
+- cheese
+- chicken
+- chicken_breast
+- chocolate
+- corn
+- eggs
+- flour
+- goat_cheese
+- green_beans
+- ground_beef
+- ham
+- heavy_cream
+- lime
+- milk
+- mushrooms
+- onion
+- potato
+- shrimp
+- spinach
+- strawberries
+- sugar
+- sweet_potato
+- tomato
+nc: 30
+roboflow:
+  license: MIT
+  project: aicook-lcv4d
+  url: https://universe.roboflow.com/karel-cornelis-q2qqg/aicook-lcv4d/dataset/4
+  version: 4
+  workspace: karel-cornelis-q2qqg
+test: ../test/images
+train: aicook-4/train/images
+val: aicook-4/valid/images
