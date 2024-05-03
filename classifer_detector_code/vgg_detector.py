@@ -220,8 +220,8 @@ def evaluate_model(model, test_data):
     print(f"Test Loss: {test_loss}")
     
 def run():
-    train_dir = "need data"
-    val_dir = "need data"
+    train_dir = "data/train"
+    val_dir = "data/test"
 
     train_data, val_data = load_data(train_dir, val_dir)
 
