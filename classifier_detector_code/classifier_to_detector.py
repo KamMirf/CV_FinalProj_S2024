@@ -60,7 +60,9 @@ class VGGModel(tf.keras.Model):
 
         self.head = [
             Flatten(),
-            Dense(64, activation='relu'),
+            Dense(128, activation=tf.nn.leaky_relu),
+            Dropout(0.1),
+            Dense(64, activation=tf.nn.leaky_relu),
             Dense(self.num_classes, activation='softmax') # 30 classes
 
         ]
