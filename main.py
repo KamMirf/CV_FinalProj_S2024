@@ -67,7 +67,7 @@ def train(model, datasets, checkpoint_path, logs_path, init_epoch):
     model.fit(
         x=datasets.train_data,
         validation_data=datasets.test_data,
-        epochs=8,
+        epochs=16,
         batch_size=None,            # Required as None as we use an ImageDataGenerator; see preprocess.py get_data()
         callbacks=callback_list,
         initial_epoch=init_epoch,
