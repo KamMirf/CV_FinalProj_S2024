@@ -5,14 +5,11 @@ import re
 from datetime import datetime
 import tensorflow as tf
 
-from classifer_detector_code.vgg_detector import VGGModel
-from preprocess import Datasets
-from skimage.transform import resize
-from classifer_detector_code.tensorboard_utils import \
-        ImageLabelingLogger, ConfusionMatrixLogger, CustomModelSaver
+from classifier_detector_code.classifier_to_detector import VGGModel
+from classifier_detector_code.preprocess import Datasets
 
-from skimage.io import imread
-from skimage.segmentation import mark_boundaries
+from classifier_detector_code.tensorboard_utils import \
+        ImageLabelingLogger, CustomModelSaver
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -27,11 +24,11 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         '--data',
-        default='..'+os.sep+'data'+os.sep,
+        default='classifier_detector_code'+os.sep+'cropped_data'+os.sep,
         help='Location where the dataset is stored.')
     parser.add_argument(
         '--load-vgg',
-        default='vgg16_imagenet.h5',
+        default='classifier_detector_code'+os.sep+'vgg16_imagenet.h5',
         help='''Path to pre-trained VGG-16 file.''')
     parser.add_argument(
         '--load-checkpoint',
@@ -119,9 +116,9 @@ def main():
     
     
     model = VGGModel()
-    checkpoint_path = "checkpoints" + os.sep + \
+    checkpoint_path = 'classifier_detector_code'+os.sep+"checkpoints" + os.sep + \
         "vgg_model" + os.sep + timestamp + os.sep
-    logs_path = "logs" + os.sep + "vgg_model" + \
+    logs_path = 'classifier_detector_code'+os.sep+"logs" + os.sep + "vgg_model" + \
         os.sep + timestamp + os.sep
     model(tf.keras.Input(shape=(224, 224, 3)))
 
@@ -135,7 +132,7 @@ def main():
     # Load checkpoints
     if ARGS.load_checkpoint is not None:
         
-        model.head.load_weights(ARGS.load_checkpoint, by_name=False)
+        model.head.load_weights(ARGS.load_checkpoint)
 
     # Make checkpoint directory if needed
     if not ARGS.evaluate and not os.path.exists(checkpoint_path):
