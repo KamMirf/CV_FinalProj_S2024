@@ -2,3 +2,6 @@
 yolov5
 CV_project
 classifier_detector_code/cropped_data
+classifier_detector_code/data
+classifier_detector_code/misclassified
+
