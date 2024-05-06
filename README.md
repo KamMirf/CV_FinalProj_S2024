@@ -3,7 +3,7 @@ Food detection and classification to recipe generation
 
 Make sure you are in yolov5 directory:
 
-python detect.py --weights ../weights/best.pt --source ../data/test/images --conf 0.25 --iou-thres 0.45 --data ../data/data.yaml --project ../yolo_outputs --name test_run --save-txt --save-conf > ../yolo_outputs/test_run/output.txt
+python detect.py --weights ../weights/best.pt --source ../aicook-4/test/images --conf 0.25 --iou-thres 0.45 --data ../data/data.yaml --project ../yolo_outputs --name test_run --save-txt --save-conf > ../yolo_outputs/test_run3/output.txt
 
 the labels txt file stores data as:
 ```
