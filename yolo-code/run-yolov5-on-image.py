@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 from collections import Counter
+import datetime
 
 # List of class names from data.yaml
 class_names = [
@@ -17,19 +18,17 @@ import os
 import subprocess
 
 def detect_image(input_image_path):
-    # Adjust paths according to your project directory structure
-    base_dir = os.path.dirname(__file__)  # Gets the directory where the current script is located
-    yolov5_dir = os.path.join(base_dir, '../yolov5')  # Adjusted path to the yolov5 directory
+    base_dir = os.path.dirname(__file__)
+    yolov5_dir = os.path.join(base_dir, '../yolov5')
     detect_script = os.path.join(yolov5_dir, 'detect.py')
+    weights_path = os.path.join(base_dir, '../weights/best.pt')
     
-    if not os.path.exists(detect_script):
-        print("detect.py not found in expected location:", detect_script)
-        return None  # Exit if detect.py is not found
+    # Create a unique directory name based on the current timestamp
+    unique_dir_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = os.path.join(base_dir, f'../yolo_outputs/{unique_dir_name}')
 
-    weights_path = os.path.join(base_dir, '../weights/best.pt')  # Adjusted path to weights
-    output_dir = os.path.join(base_dir, '../yolo_outputs/single_image')
+    os.makedirs(output_dir, exist_ok=True)
 
-    # Command to run detection
     command = [
         'python', detect_script,
         '--weights', weights_path,
