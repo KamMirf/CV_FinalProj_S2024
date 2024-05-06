@@ -12,7 +12,7 @@ class_names = [
 ]
 
 def process_label_files(labels_dir, confidence_threshold):
-    """Processes each label file in the directory, printing class counts for detections above a confidence threshold."""
+    all_files_results = []
     # Process each label file
     for label_file in os.listdir(labels_dir):
         if label_file.endswith('.txt'):
@@ -24,17 +24,24 @@ def process_label_files(labels_dir, confidence_threshold):
                         cls_id = int(parts[0])
                         file_counts[cls_id] += 1
 
-            # Print the count of each class for the current file
+            # Create a dictionary for the current file with class names as keys and counts as values
             if file_counts:
-                print(f"Results for {label_file}:")
-                for cls_id, count in file_counts.items():
-                    print(f"  {count} {class_names[cls_id]}{'s' if count > 1 else ''}")
-                print()  # Add a newline for better separation between files
+                results_dict = {class_names[cls_id]: count for cls_id, count in file_counts.items()}
+                all_files_results.append((label_file, results_dict))
+
+    return all_files_results
 
 def main():
-    labels_dir = "../yolo_outputs/test_run3/labels"  # Specify the directory containing label files
+    labels_dir = "../yolo_outputs/test_run2/labels"  # Specify the directory containing label files
     confidence_threshold = 0.5  # Set the confidence threshold for filtering detections
-    process_label_files(labels_dir, confidence_threshold)
+    results = process_label_files(labels_dir, confidence_threshold)
+
+    # Print all results
+    for file_name, detections in results:
+        print(f"Results for {file_name}:")
+        for class_name, count in detections.items():
+            print(f"  {class_name}: {count}")
+        print()  # Add a newline for better separation between files
 
 if __name__ == "__main__":
     main()
