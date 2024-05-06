@@ -34,7 +34,7 @@ def detect_image(input_image_path):
         'python', detect_script,
         '--weights', weights_path,
         '--source', input_image_path,
-        '--conf-thres', '0.25',
+        '--conf-thres', '0.60',
         '--iou-thres', '0.45',
         '--project', output_dir,
         '--exist-ok',
