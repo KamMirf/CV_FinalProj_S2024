@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 import pandas as pd
+import hyperparameters as hp
 
 
 class Datasets():
@@ -12,10 +13,10 @@ class Datasets():
     for preprocessing.
     """
 
-    def __init__(self, data_path, task):
+    def __init__(self, data_path, model_type):
 
         self.data_path = data_path
-        self.task = task
+        self.model_type = model_type
 
         # Dictionaries for (label index) <--> (class name)
         self.idx_to_class = {}
@@ -32,9 +33,9 @@ class Datasets():
         # Setup data generators
         # These feed data to the training and testing routine based on the dataset
         self.train_data = self.get_data(
-            os.path.join(self.data_path, "train/"), True, True, False, False)
+            os.path.join(self.data_path, "train/"), is_vgg=model_type=='VGG', shuffle=True, augment=True, testing=False)
         self.test_data = self.get_data(
-            os.path.join(self.data_path, "test/"), True, False, False, True)
+            os.path.join(self.data_path, "test/"), is_vgg=model_type=='VGG', shuffle=False, augment=False, testing=True)
  
         
 
@@ -146,7 +147,9 @@ class Datasets():
             data_gen = tf.keras.preprocessing.image.ImageDataGenerator(
                 preprocessing_function=self.preprocess_fn
                 , 
-                rotation_range=3, 
+                channel_shift_range=20,
+                brightness_range=[0.8,1.2],
+                rotation_range=20, 
                 width_shift_range=0.15, 
                 height_shift_range=0.15,
                 zoom_range=0.10,
@@ -159,13 +162,11 @@ class Datasets():
                 preprocessing_function=self.preprocess_fn)
 
         # VGG must take images of size 224x224
-        img_size = 224 if is_vgg else 224
+        img_size = 224 if is_vgg else hp.window_size
 
         classes_for_flow = None
-        print(f'(1) classes: {self.classes}\n')
         # Make sure all data generators are aligned in label indices
         if bool(self.idx_to_class):
-            print("preprocess line 166 evaluates True \n")
             classes_for_flow = self.classes
 
         # Form image data generator from directory structure

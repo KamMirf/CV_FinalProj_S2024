@@ -27,7 +27,7 @@ class ImageLabelingLogger(tf.keras.callbacks.Callback):
         super(ImageLabelingLogger, self).__init__()
 
         self.datasets = datasets
-        self.task = datasets.task
+        self.model_type = datasets.model_type
         self.logs_path = logs_path
 
         print("Done setting up image labeling logger.")
@@ -99,7 +99,7 @@ class ImageLabelingLogger(tf.keras.callbacks.Callback):
         file_writer_il = tf.summary.create_file_writer(
             self.logs_path + os.sep + "image_labels")
 
-        misclassified_path = "classifier_detector_code/misclassified" + self.logs_path[self.logs_path.index(os.sep):]
+        misclassified_path = "misclassified" + self.logs_path[self.logs_path.index(os.sep):]
         if not os.path.exists(misclassified_path):
             os.makedirs(misclassified_path)
         for correct, wrong, img in zip(correct_labels, wrong_labels, misclassified):
@@ -122,11 +122,11 @@ class ImageLabelingLogger(tf.keras.callbacks.Callback):
 class CustomModelSaver(tf.keras.callbacks.Callback):
     """ Custom Keras callback for saving weights of networks. """
 
-    def __init__(self, checkpoint_dir, task, max_num_weights=5):
+    def __init__(self, checkpoint_dir, model_type, max_num_weights=5):
         super(CustomModelSaver, self).__init__()
 
         self.checkpoint_dir = checkpoint_dir
-        self.task = task
+        self.model_type = model_type
         self.max_num_weights = max_num_weights
 
     def on_epoch_end(self, epoch, logs=None):
@@ -143,13 +143,13 @@ class CustomModelSaver(tf.keras.callbacks.Callback):
             save_name = "e{0:03d}-acc{1:.4f}.weights.h5".format(
                 epoch, cur_acc)
 
-            if self.task == '1':
-                save_location = self.checkpoint_dir + os.sep + "your." + save_name
+            if self.model_type == 'Custom':
+                save_location = self.checkpoint_dir + os.sep + "custom." + save_name
                 print(("\nEpoch {0:03d} TEST accuracy ({1:.4f}) EXCEEDED previous "
                        "maximum TEST accuracy.\nSaving checkpoint at {location}")
                        .format(epoch + 1, cur_acc, location = save_location))
                 self.model.save_weights(save_location)
-            else:
+            elif self.model_type == 'VGG':
                 save_location = self.checkpoint_dir + os.sep + "vgg." + save_name
                 print(("\nEpoch {0:03d} TEST accuracy ({1:.4f}) EXCEEDED previous "
                        "maximum TEST accuracy.\nSaving checkpoint at {location}")
