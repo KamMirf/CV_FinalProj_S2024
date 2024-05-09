@@ -36,28 +36,20 @@ def process_image(final_boxes, confidences, classIDs):
     
     return results_dict
 
-def detect_image(input_image_path, model_type):
+def detect_image(input_image_path, model_type="Custom"):
     custom_checkpoint = 'checkpoints/Custom/050724-130938/custom.e010-acc0.8951.weights.h5'
     vgg_head_checkpoint = 'checkpoints/vgg_model/050324-233826/vgg.e001-acc0.7443.weights.h5'
     vgg_body_weight_path = '../vgg16_imagenet.h5'
 
     if model_type == "VGG":
         model = VGGModel()
-        
         model(tf.keras.Input(shape=(224, 224, 3)))
-        
         model.head.load_weights(vgg_head_checkpoint)
         model.vgg16.load_weights(vgg_body_weight_path, by_name=True)
-        
-    elif model_type == "Custom":
+    else:  # Default to Custom
         model = CustomModel()
-        
         model(tf.keras.Input(shape=(hp.window_size, hp.window_size, 3)))
         model.load_weights(custom_checkpoint)
-        
-    else:
-        print("Error: VGG or Custom only")
-        return 
 
     model.compile(
         optimizer=model.optimizer,
@@ -66,7 +58,20 @@ def detect_image(input_image_path, model_type):
     final_boxes, confidences, classIDs = run_detection_and_visualization(input_image_path, model, class_names, model_type)
 
     results = process_image(final_boxes, confidences, classIDs)
+
+    # Print results in a formatted way
+    print("##########################################")
+    print("RESULTS: ")
     print(results)
+    print("##########################################")
+    
+    print("Detailed Results:")
+    for class_name, info in results.items():
+        print(f"{class_name}: {info['count']}")
+        for box, conf in zip(info['boxes'], info['confidences']):
+            print(f"  Box: {box}, Confidence: {conf:.2f}")
+    print()  # Add a newline for better separation
+
     return results
 
 # different scaled images
