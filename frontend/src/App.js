@@ -1,26 +1,22 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
-import PhotoUpload from './PhotoUpload'; 
+import PhotoUpload from './PhotoUpload';
+import RecipeGen from './RecipeGen';
+import Menu from './Menu';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-
-        <h2>
-          Welcome to our CV Final Project: Hungry Hippos!
-        </h2>
-
-        <p>If you are out of ideas on what to make for dinner and have assortment of food in your fridge, have no fear!</p>
-
-        <p>Upload a photo of your fridge, and we will provide you with a recipe that you can make with the items in your fridge.</p>
-
+        <h1>HUNGRY HIPPOS</h1>
+        <p>If you are out of ideas on what to make for dinner and have an assortment of food in your fridge, have no fear!</p>
+        <p>First choose a model and an image, either a preloaded one or upload your own.</p>
+        <Menu />
         <PhotoUpload />
-        
+        <p>Now go ahead and generate a recipe!</p>
+        <RecipeGen />
       </header>
     </div>
-
-
   );
 }
 

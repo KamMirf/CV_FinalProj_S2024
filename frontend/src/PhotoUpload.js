@@ -5,22 +5,27 @@ function PhotoUpload() {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-	if (file) {
-		setSelectedFile(file);
-		uploadFile(file); // Automatically upload the file once selected
-	  }
-  
+    if (file) {
+      setSelectedFile(file);
+      uploadFile(file); // Automatically upload the file once selected
+    }
   };
 
   const uploadFile = (file) => {
     const formData = new FormData();
     formData.append('photo', file);
 
-    fetch('YOUR_UPLOAD_URL', { // send to backend to pass through model
+    // Make sure to replace 'YOUR_UPLOAD_URL' with your actual upload endpoint URL
+    fetch('YOUR_UPLOAD_URL', {
       method: 'POST',
       body: formData,
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
     .then(data => {
       console.log('Success:', data);
       alert('Upload successful!');
@@ -32,9 +37,9 @@ function PhotoUpload() {
   };
 
   return (
-    <div>
-      <input type="file" onChange={handleFileChange} accept="image/*" />
-      {selectedFile && <p>File selected: {selectedFile.name}</p>}
+    <div className="form-section">
+      <input type="file" onChange={handleFileChange} accept="image/*" className="form-control" />
+      {selectedFile && <p className="file-info">File selected: {selectedFile.name}</p>}
     </div>
   );
 }
