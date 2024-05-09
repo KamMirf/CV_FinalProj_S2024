@@ -10,11 +10,13 @@ import cv2
 import numpy as np
 import hyperparameters as hp
 from classifier_to_detector import VGGModel, CustomModel
+from extract_results import process_image, run_detection_and_visualization
 from preprocess import Datasets
 
 from tensorboard_utils import \
         ImageLabelingLogger, CustomModelSaver
 from matplotlib import pyplot as plt
+
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -106,149 +108,100 @@ classes = [
   "tomato"
 ]
 
-# different scaled images
-def image_pyramid(image, scale=1.5, min_size=(224, 224)): 
-    yield image
-    while True:
-        w = int(image.shape[1] / scale)
-        image = tf.image.resize(image, (w, w))
-        if image.shape[0] < min_size[1] or image.shape[1] < min_size[0]:
-            break
-        yield image
+# # different scaled images
+# def image_pyramid(image, scale=1.5, min_size=(224, 224)): 
+#     yield image
+#     while True:
+#         w = int(image.shape[1] / scale)
+#         image = tf.image.resize(image, (w, w))
+#         if image.shape[0] < min_size[1] or image.shape[1] < min_size[0]:
+#             break
+#         yield image
 
-# sliding window across image
-def sliding_window(image, step_size, window_size):
+# # sliding window across image
+# def sliding_window(image, step_size, window_size):
 
-    for y in range(0, image.shape[0] - window_size[1], step_size):
-        for x in range(0, image.shape[1] - window_size[0], step_size):
-            window = (image[y:y + window_size[1], x:x + window_size[0]])
-            yield (x, y, window)
+#     for y in range(0, image.shape[0] - window_size[1], step_size):
+#         for x in range(0, image.shape[1] - window_size[0], step_size):
+#             window = (image[y:y + window_size[1], x:x + window_size[0]])
+#             yield (x, y, window)
 
 
-# object detection in an image      
-# def object_detection(image, model, scale=1.5, win_size=(224, 224), step_size=32, threshold=0.99):
+# def object_detection(image, model, scale=1.5, win_size=(224, 224), step_size=32, threshold=0.5, max_box_area=0.25):
 #     boxes = []
 #     confidences = []
 #     classIDs = []
 
+#     # Maximum area of the box as a fraction of the image area
+#     max_area_px = image.shape[0] * image.shape[1] * max_box_area
+
 #     # Create an image pyramid and sliding a window
 #     for resized in image_pyramid(image, scale, min_size=win_size):
 #         for (x, y, window) in sliding_window(resized, step_size=step_size, window_size=win_size):
-#             # if window.shape[0] != win_size[1] or window.shape[1] != win_size[0]:
-#             #     continue
-#             # Preprocess the window for classification
+
+#             if x <= 30 or x >= image.shape[0] - 30 or y <= 30 or y >= image.shape[1] - 30:
+#                 continue
 #             window = tf.expand_dims(window, axis=0)
 #             window = tf.image.resize(window, win_size)
 #             preds = model.predict(window)
-#             print(preds)
-#             # classes = tf.argsort(preds, direction='DESCENDING')
-#             # classID = classes[0][1] if classes[0][0] == 25 else classes[0][0]
-           
-#             # classID = tf.cast(classID, tf.int64)
-            
-            
 #             classID = tf.argmax(preds[0])
-          
-        
 #             confidence = preds[0][classID]
 
-#             # Filter out weak predictions
 #             if confidence > threshold:
-#                 # Scale coordinates back to the original image size
 #                 scale_x = image.shape[1] / resized.shape[1]
 #                 scale_y = image.shape[0] / resized.shape[0]
-#                 box = (x * scale_x, y * scale_y, (x + win_size[0]) * scale_x, (y + win_size[1]) * scale_y)
-#                 boxes.append(box)
-#                 confidences.append(float(confidence))
-#                 classIDs.append(classID.numpy())
+#                 box = [x * scale_x, y * scale_y, (x + win_size[0]) * scale_x, (y + win_size[1]) * scale_y]
+#                 box_width = box[2] - box[0]
+#                 box_height = box[3] - box[1]
+#                 box_area = box_width * box_height
 
-#     # Apply non-maxima suppression to suppress weak, overlapping bounding boxes
-#     idxs = tf.image.non_max_suppression(boxes, confidences, max_output_size=50, iou_threshold=0.5)
-#     final_boxes = [boxes[i] for i in idxs]
+#                 if box_area <= max_area_px:
+#                     boxes.append(box)
+#                     confidences.append(float(confidence))
+#                     classIDs.append(classID.numpy())
 
-#     return final_boxes, confidences, classIDs
+#     if boxes:
+#         boxes = tf.constant(boxes, dtype=tf.float32)  # Ensure boxes are a 2D Tensor
+#         confidences = tf.constant(confidences, dtype=tf.float32)
 
-def object_detection(image, model, scale=1.5, win_size=(224, 224), step_size=32, threshold=0.5, max_box_area=0.25):
-    boxes = []
-    confidences = []
-    classIDs = []
+#         idxs = tf.image.non_max_suppression(boxes, confidences, max_output_size=50, iou_threshold=0.5)
+#         final_boxes = [boxes[i].numpy().tolist() for i in idxs]  # Convert tensor indices to list of boxes
+#     else:
+#         final_boxes = []
 
-    # Maximum area of the box as a fraction of the image area
-    max_area_px = image.shape[0] * image.shape[1] * max_box_area
-
-    # Create an image pyramid and sliding a window
-    for resized in image_pyramid(image, scale, min_size=win_size):
-        for (x, y, window) in sliding_window(resized, step_size=step_size, window_size=win_size):
-            window = tf.expand_dims(window, axis=0)
-            window = tf.image.resize(window, win_size)
-            preds = model.predict(window)
-            classID = tf.argmax(preds[0])
-            confidence = preds[0][classID]
-
-            if confidence > threshold:
-                scale_x = image.shape[1] / resized.shape[1]
-                scale_y = image.shape[0] / resized.shape[0]
-                box = [x * scale_x, y * scale_y, (x + win_size[0]) * scale_x, (y + win_size[1]) * scale_y]
-                box_width = box[2] - box[0]
-                box_height = box[3] - box[1]
-                box_area = box_width * box_height
-
-                if box_area <= max_area_px:
-                    boxes.append(box)
-                    confidences.append(float(confidence))
-                    classIDs.append(classID.numpy())
-
-    if boxes:
-        boxes = tf.constant(boxes, dtype=tf.float32)  # Ensure boxes are a 2D Tensor
-        confidences = tf.constant(confidences, dtype=tf.float32)
-
-        idxs = tf.image.non_max_suppression(boxes, confidences, max_output_size=50, iou_threshold=0.5)
-        final_boxes = [boxes[i].numpy().tolist() for i in idxs]  # Convert tensor indices to list of boxes
-    else:
-        final_boxes = []
-
-    return final_boxes, confidences.numpy().tolist(), classIDs
+#     return final_boxes, confidences.numpy().tolist(), classIDs
 
 
-# # bounding boxes on image 
 # def draw_boxes(image, boxes, confidences, classIDs, classes):
 #     for (box, score, classID) in zip(boxes, confidences, classIDs):
 #         (startX, startY, endX, endY) = box
+#         startX, startY, endX, endY = int(startX), int(startY), int(endX), int(endY)
 #         label = f"{classes[classID]}: {score:.2f}"
 #         cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
 #         y = startY - 15 if startY - 15 > 15 else startY + 15
 #         cv2.putText(image, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 #     return image
 
-def draw_boxes(image, boxes, confidences, classIDs, classes):
-    for (box, score, classID) in zip(boxes, confidences, classIDs):
-        (startX, startY, endX, endY) = box
-        startX, startY, endX, endY = int(startX), int(startY), int(endX), int(endY)
-        label = f"{classes[classID]}: {score:.2f}"
-        cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
-        y = startY - 15 if startY - 15 > 15 else startY + 15
-        cv2.putText(image, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    return image
 
-
-def run_detection_and_visualization(image_path, model, classes):
-    # Load and preprocess the image
-    image = cv2.imread(image_path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+# def run_detection_and_visualization(image_path, model, classes):
+#     # Load and preprocess the image
+#     image = cv2.imread(image_path)
+#     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
-    wind_sz = (224, 224) if ARGS.model == "VGG" else (hp.window_size, hp.window_size)
+#     wind_sz = (224, 224) if ARGS.model == "VGG" else (hp.window_size, hp.window_size)
 
-    # Perform object detection
-    final_boxes, confidences, classIDs = object_detection(image, model, scale=1.5, win_size=wind_sz, step_size=64, threshold=0.99, max_box_area=0.08)
+#     # Perform object detection
+#     final_boxes, confidences, classIDs = object_detection(image, model, scale=1.5, win_size=wind_sz, step_size=64, threshold=0.99, max_box_area=0.08)
 
-    # Draw bounding boxes on the image
-    output_image = draw_boxes(image.copy(), final_boxes, confidences, classIDs, classes)
+#     # Draw bounding boxes on the image
+#     output_image = draw_boxes(image.copy(), final_boxes, confidences, classIDs, classes)
 
-    # Display the image
-    plt.figure(figsize=(10, 8))
-    plt.imshow(output_image)
-    plt.axis('off')
-    plt.show()
+#     # Display the image
+#     # plt.figure(figsize=(10, 8))
+#     # plt.imshow(output_image)
+#     # plt.axis('off')
+#     # plt.show()
+#     return final_boxes, confidences, classIDs
 
 
 
@@ -316,7 +269,7 @@ def main():
     # Run script from location of main.py
     os.chdir(sys.path[0])
 
-    datasets = Datasets(ARGS.data, ARGS.model)
+    
     
     
     
@@ -342,11 +295,7 @@ def main():
     else:
         print("Error: VGG or Custom only")
         return 
-    
-    
-   
 
-    
 
     if ARGS.model == "VGG" and ARGS.load_checkpoint:
         # Load base of VGG model
@@ -373,13 +322,14 @@ def main():
         metrics=["sparse_categorical_accuracy"])
     
     if ARGS.detect is not None:
-        "running detection"
-        run_detection_and_visualization(ARGS.detect, model=model, classes=classes)
-        return
-    
+       
+        final_boxes, confidences, classIDs = run_detection_and_visualization(ARGS.detect, model=model, classes=classes, model_type=ARGS.model)
+        results = process_image(final_boxes, confidences, classIDs)
+        return results
+        # example return can be seen below
+    datasets = Datasets(ARGS.data, ARGS.model)
     if ARGS.evaluate:
-        test(model, datasets.test_data)
-        
+        test(model, datasets.test_data)  
     else:
         print("training")
         train(model, datasets, checkpoint_path, logs_path, init_epoch, ARGS.model)
@@ -389,3 +339,153 @@ def main():
 ARGS = parse_args()
 
 main()
+
+""" 
+(Don't forget to include --load-checkpoint)
+Example results after including --detect path/to/image
+
+{
+    "chocolate": {
+        "count": 6,
+        "boxes": [
+            [512.0, 192.0, 542.0, 222.0],
+            [256.0, 512.0, 286.0, 542.0],
+            [256.0, 128.0, 286.0, 158.0],
+            [
+                576.9014282226562,
+                192.30047607421875,
+                621.9718017578125,
+                237.3708953857422,
+            ],
+            [256.0, 256.0, 286.0, 286.0],
+            [
+                384.6009521484375,
+                288.4507141113281,
+                429.6713562011719,
+                333.5211181640625,
+            ],
+        ],
+        "confidences": [
+            1.0,
+            1.0,
+            0.9999668598175049,
+            0.9989758729934692,
+            0.999701201915741,
+            0.9999998807907104,
+        ],
+    },
+    "flour": {
+        "count": 1,
+        "boxes": [
+            [
+                192.30047607421875,
+                96.15023803710938,
+                237.3708953857422,
+                141.2206573486328,
+            ]
+        ],
+        "confidences": [0.9953314661979675],
+    },
+    "ham": {
+        "count": 6,
+        "boxes": [
+            [320.0, 128.0, 350.0, 158.0],
+            [384.0, 128.0, 414.0, 158.0],
+            [448.0, 128.0, 478.0, 158.0],
+            [
+                288.4507141113281,
+                144.22535705566406,
+                356.05633544921875,
+                211.8309783935547,
+            ],
+            [
+                288.4507141113281,
+                288.4507141113281,
+                333.5211181640625,
+                333.5211181640625,
+            ],
+            [
+                216.71957397460938,
+                216.71957397460938,
+                318.306884765625,
+                318.306884765625,
+            ],
+        ],
+        "confidences": [
+            0.9968271851539612,
+            0.9999899864196777,
+            1.0,
+            1.0,
+            1.0,
+            0.9999992847442627,
+        ],
+    },
+    "milk": {
+        "count": 7,
+        "boxes": [
+            [
+                480.75115966796875,
+                384.6009521484375,
+                525.8215942382812,
+                429.6713562011719,
+            ],
+            [448.0, 384.0, 478.0, 414.0],
+            [
+                433.43914794921875,
+                216.71957397460938,
+                535.0264282226562,
+                318.306884765625,
+            ],
+            [512.0, 256.0, 542.0, 286.0],
+            [
+                192.30047607421875,
+                288.4507141113281,
+                237.3708953857422,
+                333.5211181640625,
+            ],
+            [128.0, 64.0, 158.0, 94.0],
+            [448.0, 256.0, 478.0, 286.0],
+        ],
+        "confidences": [
+            0.9999551773071289,
+            0.9986794590950012,
+            0.999990701675415,
+            0.9924749732017517,
+            1.0,
+            1.0,
+            1.0,
+        ],
+    },
+    "spinach": {
+        "count": 1,
+        "boxes": [
+            [
+                432.6760559082031,
+                144.22535705566406,
+                500.28167724609375,
+                211.8309783935547,
+            ]
+        ],
+        "confidences": [0.9938913583755493],
+    },
+    "sugar": {
+        "count": 2,
+        "boxes": [
+            [
+                288.4507141113281,
+                288.4507141113281,
+                356.05633544921875,
+                356.05633544921875,
+            ],
+            [
+                216.71957397460938,
+                433.43914794921875,
+                318.306884765625,
+                535.0264282226562,
+            ],
+        ],
+        "confidences": [0.9957306981086731, 0.9995453953742981],
+    },
+}
+
+"""
