@@ -1,4 +1,3 @@
-
 from collections import Counter
 from classifier_to_detector import CustomModel, VGGModel
 import tensorflow as tf
@@ -6,8 +5,6 @@ import hyperparameters as hp
 import cv2
 import matplotlib.pyplot as plt
 import sys
-import matplotlib.pyplot as plt
-from PIL import Image
 
 
 
@@ -168,57 +165,19 @@ def run_detection_and_visualization(image_path, model, classes, model_type):
     return final_boxes, confidences, classIDs
    
 
+#detect_image('data/test/images/DSC_5941_JPG_jpg.rf.7f34ef03affd2f952f6519e8506d8cdc.jpg', "Custom")
 
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python extract_result.py /path/to/image/file")
+        return
 
-#detect_image('../aicook-4/valid/images/DSC_5678_JPG_jpg.rf.88e59a6421653b332a514c34d942237a.jpg', "Custom")
-
-def main(input_image_path, model_type='Custom'):
-    # Detect and get the image path, boxes, confidences, and class IDs
-    results = detect_image(input_image_path, model_type)
-    
-    # Display results in a structured way
-    print("##########################################")
-    print("RESULTS: ")
-    print(results)
-    print("##########################################")
-    
-    # Optionally display an image with bounding boxes
-    if results:
-        image = cv2.imread(input_image_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        output_image = draw_boxes(image.copy(), results['boxes'], results['confidences'], results['classIDs'], class_names)
-        
-        plt.figure(figsize=(10, 8))
-        plt.imshow(output_image)
-        plt.axis('off')
-        plt.show()
-
-    # Print detailed results
-    print("Detailed Results:")
-    for class_name, info in results.items():
-        print(f"{class_name}: {info['count']}")
-        for box, conf in zip(info['boxes'], info['confidences']):
-            print(f"  Box: {box}, Confidence: {conf}")
-    print()  # Add a newline for better separation
+    input_image_path = sys.argv[1]
+    # Explicitly set the model_type to "Custom" when calling the detect_image function
+    detect_image(input_image_path, model_type="Custom")
 
 if __name__ == "__main__":
     """
-    Example usage:
-    python extract_results.py ../aicook-4/valid/images/DSC_5678_JPG_jpg.rf.88e59a6421653b332a514c34d942237a.jpg
-    
-    This will deafult to Custom model if you dont sepcify a third argument.
-    If you want a specific Model:
-
-    python extract_results.py /path/to/imag Custom
-    OR
-    python extract_results.py /path/to/imag VGG
-
+    python3 extract_results.py data/test/images/DSC_5941_JPG_jpg.rf.7f34ef03affd2f952f6519e8506d8cdc.jpg
     """
-    model_type = 'Custom'  # Default model type set to 'Custom'
-    if len(sys.argv) > 2:
-        model_type = sys.argv[2]  # Optionally override the default model type
-    elif len(sys.argv) < 2:
-        print("Usage: python run_custom_model_on_image.py <image_path> [model_type]")
-        sys.exit(1)
-
-    main(sys.argv[1], model_type)
+    main()
