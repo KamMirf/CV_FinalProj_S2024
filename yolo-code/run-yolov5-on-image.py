@@ -44,7 +44,6 @@ def detect_image(input_image_path):
     subprocess.run(command, check=True)
     return os.path.join(output_dir, 'exp/labels'), input_image_path
 
-
 def process_label_files(labels_dir, img_width, img_height):
     results = {}
     for label_file in os.listdir(labels_dir):
@@ -73,6 +72,8 @@ def process_label_files(labels_dir, img_width, img_height):
                         else:
                             print(f"Warning: Class ID {cls_id} out of range.")
     return results
+
+
 
 
 
