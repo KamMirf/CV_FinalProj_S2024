@@ -2,10 +2,6 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
@@ -28,11 +24,99 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+
+
+/* General body styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  margin: 0;
+  padding: 2px;
+  font-size: 4px;
+}
+
+h1 {
+  font-family: 'Helvetica', sans-serif;
+  color: #006f18;
+}
+
+/* Main container styling */
+.container {
+  max-width: 800px;
+  margin: auto;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Header section */
+.header {
+  background-color: #00796b;
+  color: #ffffff;
+  padding: 20px 0;
+  text-align: center;
+  border-radius: 4px 4px 0 0;
+}
+
+/* Form styling */
+.form-section {
+  padding: 10px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Button styling */
+button {
+  background-color: #5a79dc;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #1c3380;
+}
+
+/* Additional styles for radio buttons and dropdown */
+.radio-container {
+  margin: 30px 0;
+  font-size:  calc(4px + 2vmin);
+}
+
+.radio-input {
+  margin-right: 10px;
+}
+
+.dropdown {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+/* Utility classes for margin and padding */
+.mt-20 {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.pt-20 {
+  padding-top: 20px;
+}
+
+.pb-20 {
+  padding-bottom: 20px;
 }

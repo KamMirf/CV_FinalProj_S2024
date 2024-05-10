@@ -1,3 +1,18 @@
+# How to Run
+
+backend: node index.js
+
+if error:
+
+run: lsof -i :5001
+
+then: kill -9 <PID>
+
+frontend: npm start
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
