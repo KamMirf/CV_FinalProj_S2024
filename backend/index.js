@@ -1,7 +1,12 @@
 const express = require('express');
 const axios = require('axios');
 
-// const openai = new OpenAIApi(config)
+const OpenAI = require('openai');
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_KEY
+});
+
 
 require('dotenv').config();
 
@@ -65,42 +70,23 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
 
 // Additional route to handle GPT API calls
 app.post('/get-recipe', async (req, res) => {
-  const prompt = "Give me a random recipe"; // Static prompt for a random recipe
-  const apiKey = process.env.OPENAI_KEY;
-  // const client = axios.create({
-  //   headers: { 'Authorization': 'Bearer ' + apiKey }
-  // });
-  // const params = {
-  //   "prompt": prompt, 
-  //   "max_tokens": 10
-  // }
-  
+  const prompt = "Give me a random recipe"; // prompt for a random recipe
+  // const prompt = "Give me a recipe using these ingredients: "
   try {
-    // const response = "hello"
-    const response = await fetch('https://api.openai.com/v1/engines/gpt-3.5-turbo/completions', {
-    // const response = await openai.createCompletion({
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        prompt: prompt,
-        max_tokens: 150
-      })
+
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {"role": "system",
+        "content": prompt}
+      ],
+      model: "gpt-3.5-turbo",
     });
 
+    data = completion.choices[0].message.content
 
-    if (!response.ok) {
-      throw new Error('Network response was not OK');
-    }
+    // console.log(data)
 
-    const data = await response.json();
-    console.log(data)
-
-    // res.status(200).json(data.choices[0].text);
-    res.status(200).send(data.choices[0].text);
-
+    res.status(200).send(data); 
 
     
   } catch (error) {

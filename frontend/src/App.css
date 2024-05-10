@@ -31,9 +31,14 @@ body {
   font-family: 'Arial', sans-serif;
   background-color: #f4f4f4;
   color: #333;
-  margin: 0;
+  margin-left: 15%;
+  margin-right: 15%;
   padding: 2px;
   font-size: 4px;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+  width: 70%;
 }
 
 h1 {
@@ -119,4 +124,9 @@ button:hover {
 
 .pb-20 {
   padding-bottom: 20px;
+}
+
+p {
+  margin-right:30px;
+  margin-left:30px;
 }

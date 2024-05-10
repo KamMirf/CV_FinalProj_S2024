@@ -11,13 +11,13 @@ function RecipeGen() {
           'Content-Type': 'application/json'
         }
       });
-      const data = await response.json(); // Assuming data comes as { recipeText: "Recipe info" }
+      const data = await response.text(); // json or text?
       console.log(data); // Add this line to check what 'data' looks like
 
-      setRecipe(data.recipeText); // Make sure you are accessing the correct key here
-      console.log(recipe)
+      setRecipe(data); // Make sure you are accessing the correct key here
+      // console.log(recipe)
     } catch (error) {
-      console.error('Error fetching recipe:', error);
+      // console.error('Error fetching recipe:', error);
       setRecipe('Failed to load recipe'); // Optionally handle errors in UI
     }
   };
