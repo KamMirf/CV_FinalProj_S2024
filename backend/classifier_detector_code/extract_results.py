@@ -5,7 +5,7 @@ import hyperparameters as hp
 import cv2
 import matplotlib.pyplot as plt
 import sys
-
+import json
 
 
 # List of class names from data.yaml
@@ -55,22 +55,13 @@ def detect_image(input_image_path, model_type="Custom"):
         optimizer=model.optimizer,
         loss=model.loss_fn,
         metrics=["sparse_categorical_accuracy"])
-    final_boxes, confidences, classIDs = run_detection_and_visualization(input_image_path, model, class_names, model_type)
-
-    results = process_image(final_boxes, confidences, classIDs)
-
-    # Print results in a formatted way
-    print("##########################################")
-    print("RESULTS: ")
-    print(results)
-    print("##########################################")
     
-    print("Detailed Results:")
-    for class_name, info in results.items():
-        print(f"{class_name}: {info['count']}")
-        for box, conf in zip(info['boxes'], info['confidences']):
-            print(f"  Box: {box}, Confidence: {conf:.2f}")
-    print()  # Add a newline for better separation
+    final_boxes, confidences, classIDs = run_detection_and_visualization(input_image_path, model, class_names, model_type)
+    results = process_image(final_boxes, confidences, classIDs)
+    
+    # Convert results dictionary to JSON and print it
+    json_results = json.dumps(results)
+    print(json_results)
 
     return results
 
