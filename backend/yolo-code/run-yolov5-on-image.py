@@ -20,13 +20,13 @@ import subprocess
 
 def detect_image(input_image_path):
     base_dir = os.path.dirname(__file__)
-    yolov5_dir = os.path.join(base_dir, '../yolov5')
+    yolov5_dir = os.path.join(base_dir, 'yolov5')
     detect_script = os.path.join(yolov5_dir, 'detect.py')
-    weights_path = os.path.join(base_dir, '../weights/best.pt')
+    weights_path = os.path.join(base_dir, 'weights/best.pt')
     
     # Create a unique directory name based on the current timestamp
     unique_dir_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = os.path.join(base_dir, f'../yolo_outputs/{unique_dir_name}')
+    output_dir = os.path.join(base_dir, f'yolo_outputs/{unique_dir_name}')
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -106,8 +106,8 @@ if __name__ == "__main__":
     python run-yolov5-on-image.py path/to/your/image.jpg
 
     working exmaple:
-    python3 run-yolov5-on-image.py ../images-to-test-yolov5-on/1.jpeg
-
+    python3 run-yolov5-on-image.py images-to-test-yolov5-on/1.jpeg
+    
     """
     main(sys.argv[1])
 

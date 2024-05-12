@@ -125,7 +125,7 @@ app.post('/api/upload/custom', upload.single('photo'), (req, res) => {
 
 // Additional route to handle GPT API calls
 app.post('/get-recipe', async (req, res) => {
-  const prompt = "Give me a recipe using some of these ingrediants: "; // prompt for a random recipe
+  const prompt = "Give me a recipe using some of these ingredients: "; // prompt for a random recipe
   // const prompt = "Give me a recipe using these ingredients: "
   try {
 
@@ -138,10 +138,11 @@ app.post('/get-recipe', async (req, res) => {
     });
 
     data = completion.choices[0].message.content
+    prompt_and_comp = prompt + data
 
-    // console.log(data)
+    console.log(prompt_and_comp)
 
-    res.status(200).send(data); 
+    res.status(200).send(prompt_and_comp); 
 
     
   } catch (error) {

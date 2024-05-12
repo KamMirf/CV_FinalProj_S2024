@@ -33,7 +33,7 @@ const Menu = () => {
 	  };
 
     // Example image options (replace with actual image data)
-    const imageOptions = [...Array(20).keys()].map((i) => ({
+    const imageOptions = [...Array(10).keys()].map((i) => ({
         id: `image${i + 1}`,
         name: `Image ${i + 1}`,
     }));
