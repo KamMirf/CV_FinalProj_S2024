@@ -4,6 +4,7 @@ import sys
 from collections import Counter
 import datetime
 from PIL import Image
+import json
 
 # List of class names from data.yaml
 class_names = [
@@ -74,10 +75,6 @@ def process_label_files(labels_dir, img_width, img_height):
     return results
 
 
-
-
-
-
 def main(input_image_path):
     labels_dir, image_path = detect_image(input_image_path)
     
@@ -87,18 +84,17 @@ def main(input_image_path):
 
     results = process_label_files(labels_dir, img_width, img_height)
 
-    print("##########################################")
-    print("RESULTS: ")
-    print(results)
-    print("##########################################")
+    # Print results as JSON
+    print(json.dumps(results))
+
 
     # Print results in a formatted way
-    print("Detailed Results:")
-    for class_name, info in results.items():
-        print(f"{class_name}: {info['count']}")
-        for box, conf in zip(info['boxes'], info['confidences']):
-            print(f"  Box: {box}, Confidence: {conf}")
-    print()  # Add a newline for better separation
+    #print("Detailed Results:")
+    #for class_name, info in results.items():
+    #    print(f"{class_name}: {info['count']}")
+    #    for box, conf in zip(info['boxes'], info['confidences']):
+    #        print(f"  Box: {box}, Confidence: {conf}")
+    #print()  # Add a newline for better separation
 
 if __name__ == "__main__":
     """
@@ -109,5 +105,8 @@ if __name__ == "__main__":
     python3 run-yolov5-on-image.py images-to-test-yolov5-on/1.jpeg
     
     """
+    if len(sys.argv) != 2:
+        print("Usage: python run-yolov5-on-image.py <path/to/your/image.jpg>")
+        sys.exit(1)
     main(sys.argv[1])
 

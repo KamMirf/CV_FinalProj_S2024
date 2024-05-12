@@ -3,6 +3,7 @@ const axios = require('axios');
 const path = require('path');
 const { spawn } = require('child_process');
 
+
 const OpenAI = require('openai');
 
 const openai = new OpenAI({
@@ -52,40 +53,40 @@ app.listen(PORT, () => {
 let concatenatedKeys = "";
 
 //Handle yolo model
-app.post('/api/upload/yolo', (req, res) => {
+app.post("/api/upload/yolo", (req, res) => {
   const imagePath = req.body.imagePath;
-  // const file = req.file;
-  // if (!file) {
-  //   return res.status(400).json({ error: 'No file uploaded' });
-  // }
-  
-  // Process the uploaded image (e.g., with your ML model)
-  // Execute Python script with the uploaded image as an argument
-  const pythonScriptDir = path.join(__dirname, 'yolo-code');
+  const pythonScriptDir = path.join(__dirname, "yolo-code");
   process.chdir(pythonScriptDir);
 
-  exec(`python run-yolov5-on-image.py ${imagePath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error('Error executing Python script:', error);
-      res.status(500).json({ error: 'Internal server error' });
-      return;
-    }
-    console.log('Python script output:', stdout);
-    // Process output from Python script if needed
+  exec(
+    `python run-yolov5-on-image.py ${imagePath}`,
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error executing Python script:", error);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
 
-    concatenatedKeys = ''
+      let results;
+      try {
+        results = JSON.parse(stdout);
+      } catch (e) {
+        console.error("Error parsing JSON from Python script:", e);
+        return res
+          .status(500)
+          .json({ error: "Error processing Python script output" });
+      }
 
-    // Loop through the keys of the object
-    for (let key in stdout) {
-        // Check if the key is a string
-        if (typeof key === 'string') {
-            // Concatenate the key to the existing string
-            concatenatedKeys += key + " ";
-        }
+      concatenatedKeys = Object.keys(results).join(" "); // Concatenate keys and update the global variable
+      console.log("Ingredients:", concatenatedKeys);
+      res.json({
+        message: "Image processed successfully",
+        ingredients: concatenatedKeys,
+      });
     }
-    res.json({ message: 'Image processed successfully', output: stdout });
-  });
+  );
 });
+
 
 //Handle custom model
 app.post('/api/upload/custom', upload.single('photo'), (req, res) => {
@@ -124,33 +125,30 @@ app.post('/api/upload/custom', upload.single('photo'), (req, res) => {
 });
 
 // Additional route to handle GPT API calls
+// Route to generate a recipe using OpenAI based on the ingredients
 app.post('/get-recipe', async (req, res) => {
-  const prompt = "Give me a recipe using some of these ingredients: "; // prompt for a random recipe
-  // const prompt = "Give me a recipe using these ingredients: "
+  const prompt = "Give me a recipe using some of these ingredients: ";
   try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_KEY // Use environment variable for API key
+    });
 
     const completion = await openai.chat.completions.create({
       messages: [
-        {"role": "system",
-        "content": prompt + concatenatedKeys}
+        { "role": "system", "content": prompt + concatenatedKeys }
       ],
       model: "gpt-3.5-turbo",
     });
 
-    data = completion.choices[0].message.content
-    prompt_and_comp = prompt + data
-
-    console.log(prompt_and_comp)
-
-    res.status(200).send(prompt_and_comp); 
-
-    
+    const recipe = completion.choices[0].message.content;
+    const promptAndComp = prompt + concatenatedKeys + "\n" + recipe;
+    console.log(promptAndComp);
+    res.status(200).send(promptAndComp);
   } catch (error) {
-      console.error('Failed to fetch from OpenAI:', error);
-      res.status(500).json({ error: error.message });
-    }
-
-  });
+    console.error('Failed to fetch from OpenAI:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
   app.get('/simple-endpoint', (req, res) => {
     res.status(200).send("endpoint working");
