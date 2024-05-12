@@ -7,6 +7,9 @@ const Menu = () => {
   // State for dropdown
   const [selectedImage, setSelectedImage] = useState("");
 
+  // State for displaying the selected image
+  const [imageSrc, setImageSrc] = useState("");
+
   // State for uploaded image
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -21,33 +24,28 @@ const Menu = () => {
   // Handle dropdown change
   const handleImageChange = (event) => {
     setSelectedImage(event.target.value);
+    setImageSrc(event.target.value); // Set the image source to the selected image path
     let uploadURL;
     if (selectedModel === "model1") {
       uploadURL = "http://localhost:5001/api/upload/yolo";
     } else {
       uploadURL = "http://localhost:5001/api/upload/custom";
     }
-    // Send selected image path to backend
+    // Optionally send selected image path to backend
     fetch(uploadURL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ imagePath: selectedImage }),
+      body: JSON.stringify({ imagePath: event.target.value }),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => {
         console.log("Success:", data);
-        // Handle response from backend if needed
+        setUploadResponse(data); // Store response from the backend
       })
       .catch((error) => {
         console.error("Error:", error);
-        // Handle error
       });
   };
 
@@ -61,16 +59,16 @@ const Menu = () => {
   };
 
   const imagePaths = [
-    "../classifier_detector_code/data/valid/images/DSC_5677_JPG_jpg.rf.bdbf6734f9a2eaf1b2438e844cc439c9.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5678_JPG_jpg.rf.88e59a6421653b332a514c34d942237a.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5679_JPG_jpg.rf.82566b78b96aa89388dee0caff7dbcae.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5683_JPG_jpg.rf.59ee5ce9c2ba75c699c67254fd20bc72.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5686_JPG_jpg.rf.54ec15556ab9c5119abe4d32ffa34709.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5703_JPG_jpg.rf.abf86d888d179142f7dc44975006fdd6.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5704_JPG_jpg.rf.f21034ccb0030313527db49b8afcbc4f.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5705_JPG_jpg.rf.e7db4657ab081d4afc1cbc4bb3803450.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5730_JPG_jpg.rf.b9bff07bf9746022b7e2a45f750d3e6f.jpg",
-    "../classifier_detector_code/data/valid/images/DSC_5733_JPG_jpg.rf.b5f5e858cb9bd1bca1ab436e096987be.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5677_JPG_jpg.rf.bdbf6734f9a2eaf1b2438e844cc439c9.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5678_JPG_jpg.rf.88e59a6421653b332a514c34d942237a.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5679_JPG_jpg.rf.82566b78b96aa89388dee0caff7dbcae.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5683_JPG_jpg.rf.59ee5ce9c2ba75c699c67254fd20bc72.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5686_JPG_jpg.rf.54ec15556ab9c5119abe4d32ffa34709.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5703_JPG_jpg.rf.abf86d888d179142f7dc44975006fdd6.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5704_JPG_jpg.rf.f21034ccb0030313527db49b8afcbc4f.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5705_JPG_jpg.rf.e7db4657ab081d4afc1cbc4bb3803450.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5730_JPG_jpg.rf.b9bff07bf9746022b7e2a45f750d3e6f.jpg",
+    "../../backend/classifier_detector_code/data/valid/images/DSC_5733_JPG_jpg.rf.b5f5e858cb9bd1bca1ab436e096987be.jpg",
   ];
 
   // Create dropdown options using image paths
@@ -115,47 +113,30 @@ const Menu = () => {
 
   return (
     <div className="form-section">
-      {/* Radio Button Section */}
-      <div className="radio-container">
-        <label>
-          <input
-            type="radio"
-            className="radio-input"
-            value="model1"
-            checked={selectedModel === "model1"}
-            onChange={handleModelChange}
-          />
-          YOLO
-        </label>
-        <label style={{ marginLeft: "10px" }}>
-          <input
-            type="radio"
-            className="radio-input"
-            value="model2"
-            checked={selectedModel === "model2"}
-            onChange={handleModelChange}
-          />
-          Custom Model
-        </label>
-      </div>
-
       {/* Dropdown Section */}
       <div className="dropdown mt-20">
-        <label>
-          <select
-            value={selectedImage}
-            onChange={handleImageChange}
-            className="form-control"
-          >
-            <option value="">--Select an image--</option>
-            {imageOptions.map((option) => (
-              <option key={option.id} value={option.path}>
-                {option.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <select
+          value={selectedImage}
+          onChange={handleImageChange}
+          className="form-control"
+        >
+          <option value="">--Select an image--</option>
+          {imageOptions.map((option) => (
+            <option key={option.id} value={option.path}>
+              {option.name}
+            </option>
+          ))}
+        </select>
       </div>
+
+      {/* Image Display Section */}
+      {imageSrc && (
+        <img
+          src={imageSrc}
+          alt="Selected"
+          style={{ width: "100%", height: "auto" }}
+        />
+      )}
 
       {/* Upload Section*/}
       <div>
@@ -165,9 +146,7 @@ const Menu = () => {
           accept="image/*"
           className="form-control"
         />
-        {selectedFile && (
-          <p className="file-info">File selected: {selectedFile.name}</p>
-        )}
+        {selectedFile && <p>File selected: {selectedFile.name}</p>}
       </div>
     </div>
   );
