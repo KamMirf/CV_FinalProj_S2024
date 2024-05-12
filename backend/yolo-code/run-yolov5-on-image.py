@@ -109,4 +109,3 @@ if __name__ == "__main__":
         print("Usage: python run-yolov5-on-image.py <path/to/your/image.jpg>")
         sys.exit(1)
     main(sys.argv[1])
-
