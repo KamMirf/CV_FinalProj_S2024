@@ -61,7 +61,7 @@ app.post('/api/upload/yolo', upload.single('photo'), (req, res) => {
   
   // Process the uploaded image (e.g., with your ML model)
   // Execute Python script with the uploaded image as an argument
-  const pythonScriptDir = path.join(__dirname, 'backend/yolo-code');
+  const pythonScriptDir = path.join(__dirname, 'yolo-code');
   process.chdir(pythonScriptDir);
 
   exec(`python run-yolov5-on-image.py ${file.path}`, (error, stdout, stderr) => {
