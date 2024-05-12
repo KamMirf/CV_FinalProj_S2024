@@ -26,6 +26,13 @@ const upload = multer({ dest: "uploads/" });
 
 const PORT = process.env.PORT || 5001; // backend server
 
+app.use(
+  "/images",
+  express.static(
+    path.join(__dirname, "classifier_detector_code/data/valid/images")
+  )
+);
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -55,12 +62,18 @@ let concatenatedKeys = "";
 
 //Handle yolo model
 app.post("/api/upload/yolo", (req, res) => {
-  const imagePath = req.body.imagePath;
+  const imagePath = req.body.imagePath.replace(/^\/images\//, "");
+  const actualPath = path.join(
+    __dirname,
+    "classifier_detector_code/data/valid/images",
+    imagePath
+  );
   const pythonScriptDir = path.join(__dirname, "yolo-code");
+
   process.chdir(pythonScriptDir);
 
   exec(
-    `python run-yolov5-on-image.py ${imagePath}`,
+    `python run-yolov5-on-image.py "${actualPath}"`, // Ensure the path is enclosed in quotes to handle spaces in path
     (error, stdout, stderr) => {
       if (error) {
         console.error("Error executing Python script:", error);
@@ -78,7 +91,7 @@ app.post("/api/upload/yolo", (req, res) => {
           .json({ error: "Error processing Python script output" });
       }
 
-      concatenatedKeys = Object.keys(results).join(" "); // Concatenate keys and update the global variable
+      concatenatedKeys = Object.keys(results).join(" ");
       console.log("Ingredients:", concatenatedKeys);
       res.json({
         message: "Image processed successfully",
@@ -87,6 +100,7 @@ app.post("/api/upload/yolo", (req, res) => {
     }
   );
 });
+
 
 //Handle custom model
 app.post("/api/upload/custom", upload.single("photo"), (req, res) => {

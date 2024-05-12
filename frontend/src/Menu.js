@@ -59,16 +59,16 @@ const Menu = () => {
   };
 
   const imagePaths = [
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5677_JPG_jpg.rf.bdbf6734f9a2eaf1b2438e844cc439c9.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5678_JPG_jpg.rf.88e59a6421653b332a514c34d942237a.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5679_JPG_jpg.rf.82566b78b96aa89388dee0caff7dbcae.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5683_JPG_jpg.rf.59ee5ce9c2ba75c699c67254fd20bc72.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5686_JPG_jpg.rf.54ec15556ab9c5119abe4d32ffa34709.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5703_JPG_jpg.rf.abf86d888d179142f7dc44975006fdd6.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5704_JPG_jpg.rf.f21034ccb0030313527db49b8afcbc4f.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5705_JPG_jpg.rf.e7db4657ab081d4afc1cbc4bb3803450.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5730_JPG_jpg.rf.b9bff07bf9746022b7e2a45f750d3e6f.jpg",
-    "../../backend/classifier_detector_code/data/valid/images/DSC_5733_JPG_jpg.rf.b5f5e858cb9bd1bca1ab436e096987be.jpg",
+    "/images/DSC_5677_JPG_jpg.rf.bdbf6734f9a2eaf1b2438e844cc439c9.jpg",
+    "/images/DSC_5678_JPG_jpg.rf.88e59a6421653b332a514c34d942237a.jpg",
+    "/images/DSC_5679_JPG_jpg.rf.82566b78b96aa89388dee0caff7dbcae.jpg",
+    "/images/DSC_5683_JPG_jpg.rf.59ee5ce9c2ba75c699c67254fd20bc72.jpg",
+    "/images/DSC_5686_JPG_jpg.rf.54ec15556ab9c5119abe4d32ffa34709.jpg",
+    "/images/DSC_5703_JPG_jpg.rf.abf86d888d179142f7dc44975006fdd6.jpg",
+    "/images/DSC_5704_JPG_jpg.rf.f21034ccb0030313527db49b8afcbc4f.jpg",
+    "/images/DSC_5705_JPG_jpg.rf.e7db4657ab081d4afc1cbc4bb3803450.jpg",
+    "/images/DSC_5730_JPG_jpg.rf.b9bff07bf9746022b7e2a45f750d3e6f.jpg",
+    "/images/DSC_5733_JPG_jpg.rf.b5f5e858cb9bd1bca1ab436e096987be.jpg",
   ];
 
   // Create dropdown options using image paths
