@@ -18,8 +18,15 @@ const Menu = () => {
         setSelectedModel(event.target.value);
     };
 
+    const [displayedImagePath, setDisplayedImagePath] = useState('');
+
     // Handle dropdown change
     const handleImageChange = (event) => {
+        const path = event.target.value;
+
+        const modifiedPath = path.replace('..','../backend')
+        console.log(modifiedPath)
+        setDisplayedImagePath(modifiedPath);
         setSelectedImage(event.target.value);
         let uploadURL
         if (selectedModel === 'model1') {
@@ -79,10 +86,10 @@ const Menu = () => {
     const imageOptions = imagePaths.map((path, index) => ({
     id: `image${index + 1}`,
     name: `Image ${index + 1}`,
-    path: path, // Add the path to the option object
+    path: path, 
     }));
 
-	// upload image functionality
+	// upload image functionality - if we choose to implement it at a later data
 	const uploadFile = (file) => {
         let uploadURL
         if (selectedModel === 'model1') {
@@ -94,9 +101,6 @@ const Menu = () => {
         const formData = new FormData();
         formData.append('photo', file);
     
-        
-
-        // Make sure to replace 'YOUR_UPLOAD_URL' with your actual upload endpoint URL
         fetch(uploadURL, {
         method: 'POST',
         body: formData,
@@ -160,14 +164,17 @@ const Menu = () => {
                             </option>
                         ))}
                     </select>
+
+                    {/* Display the selected image */}
+                    {selectedImage && (
+                        <div>
+                            <img src={displayedImagePath} />
+                        </div>
+                    )}
+
                 </label>
             </div>
 
-			{/* Upload Section*/ }
-			<div>
-			<input type="file" onChange={handleFileChange} accept="image/*" className="form-control" />
-     		{selectedFile && <p className="file-info">File selected: {selectedFile.name}</p>}
-			</div>
 
         </div>
     );

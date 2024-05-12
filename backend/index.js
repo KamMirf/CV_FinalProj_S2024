@@ -1,31 +1,18 @@
 const express = require('express');
-const axios = require('axios');
 const path = require('path');
-const { spawn } = require('child_process');
-
-
 const OpenAI = require('openai');
-
 const openai = new OpenAI({
-  // apiKey: process.env.OPENAI_KEY
   apiKey: 'sk-proj-ZDvnzjHLfBw9EiZ8QgE6T3BlbkFJhjcBTALxsHHWbh0h01IH'
 });
-
-
 require('dotenv').config();
-
 const multer = require('multer');
 const { exec } = require('child_process');
 const app = express();
 app.use(express.json());
-
 const cors = require('cors');
-const bodyParser = require('body-parser');
 app.use(cors());
-
 // Set up multer to handle file uploads
 const upload = multer({ dest: 'uploads/' });
-
 const PORT = process.env.PORT || 5001; // backend server
 
 app.use((req, res, next) => {
@@ -90,37 +77,36 @@ app.post("/api/upload/yolo", (req, res) => {
 
 //Handle custom model
 app.post('/api/upload/custom', upload.single('photo'), (req, res) => {
-  
-  const file = req.file;
-  if (!file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  
-  // Process the uploaded image (e.g., with your ML model)
-  // Execute Python script with the uploaded image as an argument
+  const imagePath = req.body.imagePath;
   const pythonScriptDir = path.join(__dirname, 'classifier_detector_code');
   process.chdir(pythonScriptDir);
 
-  exec(`python extract_results.py ${file.path}`, (error, stdout, stderr) => {
+  exec(
+    `python extract_results.py ${imagePath}`,
+     (error, stdout, stderr) => {
     if (error) {
       console.error('Error executing Python script:', error);
       res.status(500).json({ error: 'Internal server error' });
       return;
     }
-    console.log('Python script output:', stdout);
 
-    concatenatedKeys = ''
-
-    // Loop through the keys of the object
-    for (let key in stdout) {
-      // Check if the key is a string
-      if (typeof key === 'string') {
-          // Concatenate the key to the existing string
-          concatenatedKeys += key + " ";
-      }
+    let results;
+    try {
+      results = JSON.parse(stdout);
+    } catch (e) {
+      console.error("Error parsing JSON from Python script:", e);
+      return res
+        .status(500)
+        .json({ error: "Error processing Python script output" });
     }
-    // Process output from Python script if needed
-    res.json({ message: 'Image processed successfully', output: stdout });
+    
+    concatenatedKeys = Object.keys(results).join(" "); // Concatenate keys and update the global variable
+    console.log("Ingredients:", concatenatedKeys);
+    res.json({
+      message: "Image processed successfully",
+      ingredients: concatenatedKeys,
+    });
+
   });
 });
 
