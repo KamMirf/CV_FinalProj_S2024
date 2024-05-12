@@ -173,6 +173,7 @@ def run_detection_and_visualization(image_path, model, classes, model_type):
 #detect_image('data/test/images/DSC_5941_JPG_jpg.rf.7f34ef03affd2f952f6519e8506d8cdc.jpg', "Custom")
 
 def main():
+    print("working")
     if len(sys.argv) < 2:
         print("Usage: python extract_result.py /path/to/image/file")
         return

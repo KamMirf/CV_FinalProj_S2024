@@ -1,10 +1,13 @@
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
+const { spawn } = require('child_process');
 
 const OpenAI = require('openai');
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_KEY
+  // apiKey: process.env.OPENAI_KEY
+  apiKey: 'sk-proj-ZDvnzjHLfBw9EiZ8QgE6T3BlbkFJhjcBTALxsHHWbh0h01IH'
 });
 
 
@@ -46,8 +49,11 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+let concatenatedKeys = "";
 
-app.post('/api/upload', upload.single('photo'), (req, res) => {
+//Handle yolo model
+app.post('/api/upload/yolo', upload.single('photo'), (req, res) => {
+  
   const file = req.file;
   if (!file) {
     return res.status(400).json({ error: 'No file uploaded' });
@@ -55,6 +61,9 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
   
   // Process the uploaded image (e.g., with your ML model)
   // Execute Python script with the uploaded image as an argument
+  const pythonScriptDir = path.join(__dirname, 'backend/yolo-code');
+  process.chdir(pythonScriptDir);
+
   exec(`python run-yolov5-on-image.py ${file.path}`, (error, stdout, stderr) => {
     if (error) {
       console.error('Error executing Python script:', error);
@@ -63,21 +72,67 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
     }
     console.log('Python script output:', stdout);
     // Process output from Python script if needed
+
+    concatenatedKeys = ''
+
+    // Loop through the keys of the object
+    for (let key in stdout) {
+        // Check if the key is a string
+        if (typeof key === 'string') {
+            // Concatenate the key to the existing string
+            concatenatedKeys += key + " ";
+        }
+    }
     res.json({ message: 'Image processed successfully', output: stdout });
   });
 });
 
+//Handle custom model
+app.post('/api/upload/custom', upload.single('photo'), (req, res) => {
+  
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  
+  // Process the uploaded image (e.g., with your ML model)
+  // Execute Python script with the uploaded image as an argument
+  const pythonScriptDir = path.join(__dirname, 'classifier_detector_code');
+  process.chdir(pythonScriptDir);
+
+  exec(`python extract_results.py ${file.path}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Error executing Python script:', error);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    console.log('Python script output:', stdout);
+
+    concatenatedKeys = ''
+
+    // Loop through the keys of the object
+    for (let key in stdout) {
+      // Check if the key is a string
+      if (typeof key === 'string') {
+          // Concatenate the key to the existing string
+          concatenatedKeys += key + " ";
+      }
+    }
+    // Process output from Python script if needed
+    res.json({ message: 'Image processed successfully', output: stdout });
+  });
+});
 
 // Additional route to handle GPT API calls
 app.post('/get-recipe', async (req, res) => {
-  const prompt = "Give me a random recipe"; // prompt for a random recipe
+  const prompt = "Give me a recipe using some of these ingrediants: "; // prompt for a random recipe
   // const prompt = "Give me a recipe using these ingredients: "
   try {
 
     const completion = await openai.chat.completions.create({
       messages: [
         {"role": "system",
-        "content": prompt}
+        "content": prompt + concatenatedKeys}
       ],
       model: "gpt-3.5-turbo",
     });
