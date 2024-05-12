@@ -52,19 +52,19 @@ app.listen(PORT, () => {
 let concatenatedKeys = "";
 
 //Handle yolo model
-app.post('/api/upload/yolo', upload.single('photo'), (req, res) => {
-  
-  const file = req.file;
-  if (!file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
+app.post('/api/upload/yolo', (req, res) => {
+  const imagePath = req.body.imagePath;
+  // const file = req.file;
+  // if (!file) {
+  //   return res.status(400).json({ error: 'No file uploaded' });
+  // }
   
   // Process the uploaded image (e.g., with your ML model)
   // Execute Python script with the uploaded image as an argument
   const pythonScriptDir = path.join(__dirname, 'yolo-code');
   process.chdir(pythonScriptDir);
 
-  exec(`python run-yolov5-on-image.py ${file.path}`, (error, stdout, stderr) => {
+  exec(`python run-yolov5-on-image.py ${imagePath}`, (error, stdout, stderr) => {
     if (error) {
       console.error('Error executing Python script:', error);
       res.status(500).json({ error: 'Internal server error' });
