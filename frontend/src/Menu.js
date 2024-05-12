@@ -113,6 +113,28 @@ const Menu = () => {
 
   return (
     <div className="form-section">
+      {/* Radio Buttons for Model Selection */}
+      <div>
+        <label>
+          <input
+            type="radio"
+            value="model1"
+            checked={selectedModel === "model1"}
+            onChange={handleModelChange}
+          />
+          YOLO Model
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="model2"
+            checked={selectedModel === "model2"}
+            onChange={handleModelChange}
+          />
+          Custom Model
+        </label>
+      </div>
+
       {/* Dropdown Section */}
       <div className="dropdown mt-20">
         <select
@@ -138,7 +160,7 @@ const Menu = () => {
         />
       )}
 
-      {/* Upload Section*/}
+      {/* Upload Section */}
       <div>
         <input
           type="file"

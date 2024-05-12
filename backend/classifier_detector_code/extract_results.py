@@ -1,6 +1,15 @@
+import os
+import tensorflow as tf
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow logging (1 = INFO, 2 = WARNING, 3 = ERROR)
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)  # Suppress deprecation warnings
+
+# Ensure that any dynamic operation is quiet
+tf.get_logger().setLevel('ERROR')
+
+
 from collections import Counter
 from classifier_to_detector import CustomModel, VGGModel
-import tensorflow as tf
 import hyperparameters as hp
 import cv2
 import matplotlib.pyplot as plt
@@ -23,16 +32,16 @@ class_names = [
 def process_image(final_boxes, confidences, classIDs):
     # Initialize results dictionary to only include class names that appear in classIDs
     unique_classIDs = set(classIDs)  # Remove duplicates to optimize initialization
-    results_dict = {class_names[classID]: {'count': 0, 'boxes': [], 'confidences': []} for classID in unique_classIDs}
+    results_dict = {class_names[classID]: {"count": 0, "boxes": [], "confidences": []} for classID in unique_classIDs}
     
     # Iterate over each detected object
     for box, confidence, classID in zip(final_boxes, confidences, classIDs):
         class_name = class_names[classID]
         # Ensure the class_name is in the dictionary (it should always be unless class_names or classIDs is inconsistent)
         if class_name in results_dict:
-            results_dict[class_name]['count'] += 1
-            results_dict[class_name]['boxes'].append(box)
-            results_dict[class_name]['confidences'].append(confidence)
+            results_dict[class_name]["count"] += 1
+            results_dict[class_name]["boxes"].append(box)
+            results_dict[class_name]["confidences"].append(confidence)
     
     return results_dict
 
@@ -100,7 +109,7 @@ def object_detection(image, model, scale=1.5, win_size=(224, 224), step_size=32,
                 continue
             window = tf.expand_dims(window, axis=0)
             window = tf.image.resize(window, win_size)
-            preds = model.predict(window)
+            preds = model.predict(window, verbose=0)
             classID = tf.argmax(preds[0])
             confidence = preds[0][classID]
 
@@ -154,19 +163,19 @@ def run_detection_and_visualization(image_path, model, classes, model_type):
     output_image = draw_boxes(image.copy(), final_boxes, confidences, classIDs, classes)
 
     # Display the image
-    plt.figure(figsize=(10, 8))
+    """plt.figure(figsize=(10, 8))
     plt.imshow(output_image)
     plt.axis('off')
-    plt.show()
+    plt.show()"""
     return final_boxes, confidences, classIDs
    
 
 #detect_image('data/test/images/DSC_5941_JPG_jpg.rf.7f34ef03affd2f952f6519e8506d8cdc.jpg', "Custom")
 
 def main():
-    print("working")
+
     if len(sys.argv) < 2:
-        print("Usage: python extract_result.py /path/to/image/file")
+        #print("Usage: python extract_result.py /path/to/image/file")
         return
 
     input_image_path = sys.argv[1]

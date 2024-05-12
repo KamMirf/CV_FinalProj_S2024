@@ -100,42 +100,48 @@ app.post("/api/upload/yolo", (req, res) => {
     }
   );
 });
-
-
-//Handle custom model
-app.post("/api/upload/custom", upload.single("photo"), (req, res) => {
-  const file = req.file;
-  if (!file) {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-
-  // Process the uploaded image (e.g., with your ML model)
-  // Execute Python script with the uploaded image as an argument
+//Handle custom
+app.post("/api/upload/custom", (req, res) => {
+  const imagePath = req.body.imagePath.replace(/^\/images\//, "");
+  const actualPath = path.join(
+    __dirname,
+    "classifier_detector_code/data/valid/images",
+    imagePath
+  );
   const pythonScriptDir = path.join(__dirname, "classifier_detector_code");
+
   process.chdir(pythonScriptDir);
 
-  exec(`python extract_results.py ${file.path}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Error executing Python script:", error);
-      res.status(500).json({ error: "Internal server error" });
-      return;
-    }
-    console.log("Python script output:", stdout);
-
-    concatenatedKeys = "";
-
-    // Loop through the keys of the object
-    for (let key in stdout) {
-      // Check if the key is a string
-      if (typeof key === "string") {
-        // Concatenate the key to the existing string
-        concatenatedKeys += key + " ";
+  exec(
+    `python extract_results.py "${actualPath}"`, // Ensure the path is enclosed in quotes to handle spaces in path
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error executing Python script:", error);
+        res.status(500).json({ error: "Internal server error" });
+        return;
       }
+
+      let results;
+      try {
+        results = JSON.parse(stdout);
+      } catch (e) {
+        console.error("Error parsing JSON from Python script:", e);
+        return res
+          .status(500)
+          .json({ error: "Error processing Python script output" });
+      }
+
+      concatenatedKeys = Object.keys(results).join(" ");
+      console.log("Ingredients:", concatenatedKeys);
+      res.json({
+        message: "Image processed successfully",
+        ingredients: concatenatedKeys,
+      });
     }
-    // Process output from Python script if needed
-    res.json({ message: "Image processed successfully", output: stdout });
-  });
+  );
 });
+
+
 
 // Additional route to handle GPT API calls
 // Route to generate a recipe using OpenAI based on the ingredients
