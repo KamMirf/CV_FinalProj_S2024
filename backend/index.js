@@ -73,7 +73,7 @@ app.post("/api/upload/yolo", (req, res) => {
   process.chdir(pythonScriptDir);
 
   exec(
-    `python run-yolov5-on-image.py "${actualPath}"`, // Ensure the path is enclosed in quotes to handle spaces in path
+    `python run-yolov5-on-image.py "${actualPath}"`,
     (error, stdout, stderr) => {
       if (error) {
         console.error("Error executing Python script:", error);
@@ -113,7 +113,7 @@ app.post("/api/upload/custom", (req, res) => {
   process.chdir(pythonScriptDir);
 
   exec(
-    `python extract_results.py "${actualPath}"`, // Ensure the path is enclosed in quotes to handle spaces in path
+    `python extract_results.py "${actualPath}"`, 
     (error, stdout, stderr) => {
       if (error) {
         console.error("Error executing Python script:", error);
@@ -142,14 +142,12 @@ app.post("/api/upload/custom", (req, res) => {
 });
 
 
-
-// Additional route to handle GPT API calls
 // Route to generate a recipe using OpenAI based on the ingredients
 app.post("/get-recipe", async (req, res) => {
   const prompt = "Give me a recipe using some of these ingredients: ";
   try {
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_KEY, // Use environment variable for API key
+      apiKey: process.env.OPENAI_KEY,
     });
 
     const completion = await openai.chat.completions.create({

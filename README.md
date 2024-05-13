@@ -18,4 +18,23 @@ the labels txt file stores data as:
 ### Download Detectron2
 ```
 pip install 'git+https://github.com/facebookresearch/detectron2.git'
+
 ```
+
+
+### Run Webapp
+
+backend: cd backend
+
+node index.js
+
+if error:
+
+run: lsof -i :5001
+
+then: kill -9 <PID>
+
+
+frontend: cd frontend
+
+npm start

@@ -31,7 +31,7 @@ const Menu = () => {
     } else {
       uploadURL = "http://localhost:5001/api/upload/custom";
     }
-    // Optionally send selected image path to backend
+
     fetch(uploadURL, {
       method: "POST",
       headers: {
@@ -54,7 +54,7 @@ const Menu = () => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      uploadFile(file); // Automatically upload the file once selected
+      uploadFile(file); // Automatically upload the file once it's selected
     }
   };
 
@@ -89,7 +89,7 @@ const Menu = () => {
     const formData = new FormData();
     formData.append("photo", file);
 
-    // Make sure to replace 'YOUR_UPLOAD_URL' with your actual upload endpoint URL
+
     fetch(uploadURL, {
       method: "POST",
       body: formData,

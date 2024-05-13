@@ -9,7 +9,7 @@ const SimpleEndpointButton = () => {
         method: 'GET',
       });
       if (response.ok) {
-        const data = await response.text(); // Use `.text()` because it's a plain string response
+        const data = await response.text();
         setMessage(data);
       } else {
         setMessage('Error: Unable to reach the endpoint');
