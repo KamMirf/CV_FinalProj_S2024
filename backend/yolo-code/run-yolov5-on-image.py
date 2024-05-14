@@ -102,7 +102,7 @@ if __name__ == "__main__":
     python run-yolov5-on-image.py path/to/your/image.jpg
 
     working exmaple:
-    python3 run-yolov5-on-image.py images-to-test-yolov5-on/1.jpeg
+    python3 run-yolov5-on-image.py test.jpeg
     
     """
     if len(sys.argv) != 2:

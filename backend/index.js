@@ -6,9 +6,9 @@ const { spawn } = require("child_process");
 const OpenAI = require("openai");
 
 const openai = new OpenAI({
-  // apiKey: process.env.OPENAI_KEY
-  apiKey: "sk-proj-ZDvnzjHLfBw9EiZ8QgE6T3BlbkFJhjcBTALxsHHWbh0h01IH",
+  apiKey: process.env.OPENAI_KEY,
 });
+
 
 require("dotenv").config();
 
