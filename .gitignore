@@ -8,3 +8,4 @@ aicook-4
 yolov5
 best.pt
 node_modules
+backend/classifier_detector_code/data
